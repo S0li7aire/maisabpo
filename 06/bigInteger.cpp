@@ -14,10 +14,10 @@ BigInteger::BigInteger(const std::string& str)
     }
 }
 
-BigInteger::BigInteger(const std::vector<int>& digits)
+BigInteger::BigInteger(const std::vector<int>& digits, bool negative)
 {
     this->digits = digits;
-    this->negative = false;
+    this->negative = negative;
 }
 
 // inline BigInteger BigInteger::operator=(const BigInteger& other) const
@@ -202,75 +202,37 @@ inline BigInteger BigInteger::operator*=(const BigInteger& other) const
     return *this * other;
 }
 
-inline BigInteger BigInteger::operator/(const BigInteger& other) const 
+BigInteger BigInteger::operator/(const BigInteger& other) const 
 {
     if (other == BigInteger("0")) {
-        throw std::invalid_argument("Division by zero is undefined.");
+        throw std::invalid_argument("Arithmetic exception");
     }
-
-    BigInteger result;
-    result.negative = (negative != other.negative);
-    BigInteger larger = *this;
-    BigInteger smaller = other;
-    larger.negative = false;
-    smaller.negative = false;
-    if(larger < smaller)
-    {
-        std::swap(larger, smaller);
+    BigInteger t1 = *this, t2 = other;
+    t1.negative = false;
+    t2.negative = false;
+    if (t1 < t2) {
+        t1 = BigInteger("0");
+        return t1;
     }
-    bool stop = false;
-    while (!stop)
-    {
-        int offset = larger.digits.size() - smaller.digits.size();
-        if(offset > this->digits.size())
-        {
-            stop = true;
-            break;
+    std::vector<int> temp;
+    std::vector<int>::reverse_iterator iter = t1.digits.rbegin();
+    BigInteger temp2(0);
+    while (iter != t1.digits.rend()) {
+        temp2 = temp2 * BigInteger("10") + BigInteger((int)(*iter));
+        int s = 0;
+        while (temp2 >= t2) {
+            temp2 = temp2 - t2;
+            s = s + 1;
         }
-        int res = 0;
-        std::vector<int> tmp;
-        for(int i = 0; i < offset; ++i)
-        {
-            if(larger.digits.size() - 1 < i) { tmp.push_back(0); }
-            else { tmp.push_back(larger.digits[larger.digits.size() - 1 - i]); }
-        }
-        std::reverse(tmp.begin(), tmp.end());
-        BigInteger currentDivisor(tmp);
-        BigInteger currentDivident = smaller;
-        while(currentDivisor < smaller)
-        {
-            ++offset;
-            tmp.clear();
-            for(int i = 0; i < offset; ++i)
-            {
-                if(larger.digits.size() - 1 < i) { tmp.push_back(0); }
-                else { tmp.push_back(larger.digits[larger.digits.size() - 1 - i]); }
-            }
-            std::reverse(tmp.begin(), tmp.end());
-            currentDivisor = BigInteger(tmp);
-        }
-        std::cout << currentDivisor << " - " << smaller << std::endl;
-        while(currentDivisor >= currentDivident)
-        {
-            ++res;
-            currentDivident = smaller * BigInteger(res);
-            std::cout << currentDivisor << " + " << currentDivident << std::endl;
-        }
-        result.digits.push_back(res - 1);
-        currentDivident = currentDivident - smaller;
-        int i = currentDivident == currentDivisor ? 0 : 1;
-        std::vector<int> temp(larger.digits.size() - currentDivident.digits.size() - i, 0);
-        for(auto& iter : currentDivident.digits)
-        {
-            temp.push_back(iter);
-        }
-        std::cout << " T = " << BigInteger(temp);
-        std::cout << " B = " << larger;
-        larger = larger - BigInteger(temp);
-        std::cout << " A = " << larger << std::endl;
-        std::cout << res << " - " << result << std::endl;
+        temp.push_back(s);
+        iter++;
     }
-    return result;
+    t1.digits.clear();
+    std::reverse(temp.begin(), temp.end());
+    t1.digits = temp;
+    t1.removeLeadingZeros();
+    t1.negative = (this->negative != other.negative);
+    return t1;
 }
 
 inline BigInteger BigInteger::operator/=(const BigInteger& other) const
@@ -283,8 +245,15 @@ inline BigInteger BigInteger::operator%(const BigInteger& other) const
     if (other == BigInteger("0")) {
         throw std::invalid_argument("Arithmetic exception");
     }
-
-    return *this - (other * (*this / other));
+    BigInteger result;
+    result.negative = this->negative != other.negative;
+    auto tempT = *this;
+    auto tempO = other;
+    tempT.negative = false;
+    tempO.negative = false;
+    auto tmp = tempT - (tempO * (tempT / tempO));
+    result.digits = tmp.digits;
+    return result;
 }
 
 inline BigInteger BigInteger::operator%=(const BigInteger& other) const
@@ -407,7 +376,7 @@ int main() {
     BigInteger diff = num1 - num2;
     BigInteger product = num1 * num2;
     BigInteger quotient = num1 / num2;
-    // BigInteger modulus = num1 % num2;
+    BigInteger modulus = num1 % num2;
     
     std::cout << "Sum: " << sum << std::endl;
 
@@ -417,7 +386,7 @@ int main() {
 
     std::cout << "Quotient: " << quotient << std::endl;
     
-    // std::cout << "Modulus: " << modulus << std::endl;
+    std::cout << "Modulus: " << modulus << std::endl;
     
     return 0;
 }

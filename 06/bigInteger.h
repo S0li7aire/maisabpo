@@ -12,7 +12,7 @@ private:
 public:
     explicit BigInteger() : digits(0), negative(false) {}
     explicit BigInteger(const std::string& str);
-    explicit BigInteger(const std::vector<int>& digits);
+    explicit BigInteger(const std::vector<int>& digits, bool negative = false);
     explicit BigInteger(const int num) { 
             digits.push_back(num); 
             num >= 0 ? this->negative = false : this->negative = true;
@@ -25,10 +25,10 @@ public:
     inline BigInteger operator+=(const BigInteger& other) const;
     inline BigInteger operator-(const BigInteger& other) const;
     inline BigInteger operator-=(const BigInteger& other) const;
-    inline BigInteger operator*(const BigInteger& other) const;
-    inline BigInteger operator*(const int& other) const;
+    BigInteger operator*(const BigInteger& other) const;
+    BigInteger operator*(const int& other) const;
     inline BigInteger operator*=(const BigInteger& other) const;
-    inline BigInteger operator/(const BigInteger& other) const;
+    BigInteger operator/(const BigInteger& other) const;
     inline BigInteger operator/=(const BigInteger& other) const;
     inline BigInteger operator%(const BigInteger& other) const;
     inline BigInteger operator%=(const BigInteger& other) const;
