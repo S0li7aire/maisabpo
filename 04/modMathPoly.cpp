@@ -1,6 +1,8 @@
 #include <iostream>
+#include <iomanip>
 #include <cstdint>
 #include <conio.h>
+#include <string>
 
 namespace modMathPoly
 {
@@ -66,7 +68,7 @@ namespace utility
         std::cout << std::endl;
     }
 
-    void readWord(uint32_t &var)
+    void readWord(size_t &var)
     {
         char ch = 0;
         while ((ch = _getch()) != '\r' && ch != '\n') {
@@ -80,13 +82,36 @@ namespace utility
             std::cout << ch;
         }
     }
+
+    inline size_t countDigits(size_t number) {
+        size_t count = 0;
+        if (number == 0) { return 1; }
+        while (number != 0) {
+            number /= 10;
+            count++;
+        }
+        return count;
+    }
+
+    inline void formatCout(size_t a, size_t b)  
+    {
+        if(utility::countDigits(a) < utility::countDigits(b))
+        {
+            std::cout << "\x1b[A"; //up
+            std::cout << "\x1b[G";
+            std::cout << "\x1b[" << std::to_string(utility::countDigits(a) + 20) << "C"; //right
+            for(int i = utility::countDigits(b) - utility::countDigits(a) + 1; i > 0; --i)
+                std::cout << " ";
+            std::cout << "\x1b[K= ";
+            utility::printBinary(a);
+            std::cout << "\x1b[" << std::to_string(utility::countDigits(b) + 23) << "C"; //right
+        }
+    }
 }
 
 
 int main() {
-    uint32_t a = 0,
-             b = 0,
-             M = 0;
+    size_t a = 0, b = 0, M = 0;
 
     std::cout << "Введите значение a: ";
     utility::readWord(a);
@@ -96,17 +121,22 @@ int main() {
     std::cout << "Введите значение b: ";
     utility::readWord(b);
     std::cout << " = ";
+    utility::formatCout(a, b);
     utility::printBinary(b);
 
-    std::cout << "Введите значение M (модуль): ";
+    std::cout << "Введите значение M: ";
     utility::readWord(M);
     std::cout << " = ";
+    utility::formatCout(b, M);
+    std::cout << "\x1b[A";
+    utility::formatCout(a, M);
+    std::cout << "\x1b[B";
     utility::printBinary(M);
 
-    std::cout << "a + b mod M = " << modMathPoly::addPolynomials(a, b, M) << std::endl;
-    std::cout << "a - b mod M = " << modMathPoly::subtractPolynomials(a, b, M) << std::endl;
-    std::cout << "a * b mod M = " << modMathPoly::multiplyPolynomials(a, b, M) << std::endl;
-    std::cout << "2^(-1) mod M = " << modMathPoly::findInverse(uint32_t(2), M) << std::endl;
+    std::cout << "a + b mod M  = " << modMathPoly::addPolynomials(a, b, M) << std::endl;
+    std::cout << "a - b mod M  = " << modMathPoly::subtractPolynomials(a, b, M) << std::endl;
+    std::cout << "a * b mod M  = " << modMathPoly::multiplyPolynomials(a, b, M) << std::endl;
+    std::cout << "2^(-1) mod M = " << modMathPoly::findInverse(size_t(2), M) << std::endl;
 
     return 0;
 }
