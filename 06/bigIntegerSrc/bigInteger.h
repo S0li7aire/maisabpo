@@ -3,6 +3,7 @@
 #include <string>
 #include <algorithm>
 #include <cmath>
+#include <benchmark/benchmark.h>
 
 class BigInteger {
 private:
@@ -20,7 +21,6 @@ public:
     ~BigInteger() = default;
 
 public:
-    // inline BigInteger operator=(const BigInteger& other) const;
     inline BigInteger operator+(const BigInteger& other) const;
     inline BigInteger operator+=(const BigInteger& other) const;
     inline BigInteger operator-(const BigInteger& other) const;

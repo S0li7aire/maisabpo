@@ -1,4 +1,8 @@
 #include "bigInteger.h"
+
+BigInteger num1("-1234567890123456789012345678901234567890");
+BigInteger num2("9876543210987654321098765432109876543210");
+
 BigInteger::BigInteger(const std::string& str) 
 {
     int start = 0;
@@ -19,14 +23,6 @@ BigInteger::BigInteger(const std::vector<int>& digits, bool negative)
     this->digits = digits;
     this->negative = negative;
 }
-
-// inline BigInteger BigInteger::operator=(const BigInteger& other) const
-// {
-//     BigInteger tmp;
-//     tmp.digits = other.digits;
-//     tmp.negative = other.negative;
-//     return tmp;
-// }
 
 inline BigInteger BigInteger::operator+(const BigInteger& other) const 
 {
@@ -135,7 +131,6 @@ BigInteger BigInteger::operator*(const BigInteger& other) const
     int n = digits.size();
     int m = other.digits.size();
 
-    // If either operand is zero, return zero
     if (n == 1 && digits[0] == 0) {
         return BigInteger("0");
     }
@@ -143,7 +138,6 @@ BigInteger BigInteger::operator*(const BigInteger& other) const
         return BigInteger("0");
     }
 
-    // Choose a base case for small inputs
     if (n < 50 || m < 50) {
         BigInteger result;
         result.negative = (negative != other.negative);
@@ -164,7 +158,6 @@ BigInteger BigInteger::operator*(const BigInteger& other) const
         return result;
     }
 
-    // Split the operands into two parts
     int half = std::max(n, m) / 2;
 
     BigInteger high1(std::vector<int>(digits.begin(), digits.begin() + std::min(half, n)));
@@ -173,15 +166,12 @@ BigInteger BigInteger::operator*(const BigInteger& other) const
     BigInteger high2(std::vector<int>(other.digits.begin(), other.digits.begin() + std::min(half, m)));
     BigInteger low2(std::vector<int>(other.digits.begin() + std::min(half, m), other.digits.end()));
 
-    // Recursive calls
     BigInteger z0 = low1 * low2;
     BigInteger z1 = (low1 + high1) * (low2 + high2);
     BigInteger z2 = high1 * high2;
 
-    // Combine the results using Karatsuba formula
     BigInteger result = (z2 * BigInteger(std::pow(10, half * 2))) + ((z1 - z2 - z0) * BigInteger(std::pow(10, half))) + z0;
 
-    // Adjust the sign
     result.negative = (negative != other.negative);
 
     return result;
@@ -368,25 +358,52 @@ void BigInteger::print() const {
     std::cout << std::endl;
 }
 
-int main() {
-    BigInteger num1("-123456789123456789");
-    BigInteger num2("987654321");
-
-    BigInteger sum = num1 + num2;
-    BigInteger diff = num1 - num2;
-    BigInteger product = num1 * num2;
-    BigInteger quotient = num1 / num2;
-    BigInteger modulus = num1 % num2;
-    
-    std::cout << "Sum: " << sum << std::endl;
-
-    std::cout << "Diff: " << diff << std::endl;
-    
-    std::cout << "Product: " << product << std::endl;
-
-    std::cout << "Quotient: " << quotient << std::endl;
-    
-    std::cout << "Modulus: " << modulus << std::endl;
-    
-    return 0;
+inline void summ(BigInteger num1, BigInteger num2)
+{
+    BigInteger num3 = num1 + num2;
 }
+
+inline void mul(BigInteger num1, BigInteger num2)
+{
+    BigInteger num3 = num1 * num2;
+}
+
+inline void sub(BigInteger num1, BigInteger num2)
+{
+    BigInteger num3 = num1 - num2;
+}
+
+inline void div(BigInteger num1, BigInteger num2)
+{
+    BigInteger num3 = num1 / num2;
+}
+
+void Addition_BigInteger(benchmark::State& state) {
+    while (state.KeepRunning()) {
+        summ(num1, num2);
+    }
+}
+BENCHMARK(Addition_BigInteger)->Arg(100000);
+
+void Multiplication_BigInteger(benchmark::State& state) {
+    while (state.KeepRunning()) {
+        mul(num1, num2);
+    }
+}
+BENCHMARK(Multiplication_BigInteger)->Arg(100000);
+
+void Substraction_BigInteger(benchmark::State& state) {
+    while (state.KeepRunning()) {
+        sub(num1, num2);
+    }
+}
+BENCHMARK(Substraction_BigInteger)->Arg(100000);
+
+void Division_BigInteger(benchmark::State& state) {
+    while (state.KeepRunning()) {
+        div(num1, num2);
+    }
+}
+BENCHMARK(Division_BigInteger)->Arg(100000);
+
+BENCHMARK_MAIN();

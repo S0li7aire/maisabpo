@@ -7,19 +7,20 @@ namespace modMath
     inline int mul(int a, int b, int M){ return (a * b) % M; }
     inline double pow(int a, int b, int M)
     { 
-        if (M == 1) return 0;
-        int result = 1;
-        a = a % M;
-        while (std::abs(b) > 0) 
-        {
-            if (std::abs(b % 2) == 1) 
-            {
-                result = (result * a) % M;
-            }
-            b = b / 2;
-            a = (a * a) % M;
+        if (b == 0) {
+            return 1;
         }
-        return b > 0 ? result : (1. / result);
+        
+        int result = 1;
+        while (b > 0) {
+            if (b % 2 == 1) {
+                result = mul(result, a, M);
+            }
+            a = mul(a, a, M);
+            b /= 2;
+        }
+        
+        return result;
     }
     inline int findInverse(int a, int M)
     {
@@ -28,7 +29,7 @@ namespace modMath
                 return a > 0 ? i : -i;
             }
         }
-        return NULL;
+        return 0;
     }
     inline int div(int a, int b, int M)
     { 
@@ -60,25 +61,25 @@ int main() {
     std::cout << "(a ^ b) mod M = " << modMath::pow(a, b, M) << std::endl;
 
     int temp = modMath::findInverse(a, M);
-    if (temp != NULL)
+    if (temp != 0)
         std::cout << "a^(-1) mod M = " << temp << std::endl;
     else 
         std::cout << "a^(-1) mod M: нет решения" << std::endl;
 
     temp = modMath::findInverse(b, M);
-    if (temp != NULL)
+    if (temp != 0)
         std::cout << "b^(-1) mod M = " << temp << std::endl;
     else
         std::cout << "b^(-1) mod M: нет решения" << std::endl;
 
     temp = modMath::div(b, a, M);
-    if (temp != NULL)
+    if (temp != 0)
         std::cout << "(b / a) mod M = " << temp << std::endl;
     else
         std::cout << "(b / a) mod M: нет решения" << std::endl;
 
     temp = modMath::div(a, b, M);
-    if (temp != NULL)
+    if (temp != 0)
         std::cout << "(a / b) mod M = " << temp << std::endl;
     else
         std::cout << "(a / b) mod M: нет решения" << std::endl;
